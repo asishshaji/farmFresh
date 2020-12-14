@@ -2,12 +2,15 @@ package repository
 
 import (
 	"context"
+	"errors"
 	"log"
 
 	"github.com/asishshaji/freshFarm/app/models"
+	"github.com/asishshaji/freshFarm/app/utils"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 type mongoRepo struct {
@@ -47,12 +50,24 @@ func (repo mongoRepo) CheckIfSuperUser(
 
 // For superAdmin
 func (repo mongoRepo) CreateAdmin(ctx context.Context, admin models.Admin) error {
-	result, err := repo.adminCollection.InsertOne(ctx, admin)
+
+	opts := options.Update().SetUpsert(true)
+
+	up, err := utils.ToDoc(admin)
 	if err != nil {
 		return err
 	}
+	doc := bson.D{{"$set", up}}
 
-	log.Println("New admin created :", result)
+	result, err := repo.adminCollection.UpdateOne(ctx, bson.M{"username": admin.Username}, doc, opts)
+
+	if result.MatchedCount != 0 {
+		return errors.New("Admin already exists")
+	}
+
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

@@ -42,7 +42,7 @@ func (ec EchoController) CreateAdmin(c echo.Context) error {
 	err = ec.usecase.CreateAdmin(c.Request().Context(), username, password, "ASD")
 
 	if err != nil {
-		return err
+		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 	return c.JSON(http.StatusOK, map[string]string{"message": "Success"})
 }
