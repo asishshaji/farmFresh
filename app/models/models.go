@@ -4,7 +4,7 @@ import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Admin struct {
 	Username        string             `bson:"username"`
-	Password        string             `bson:"-"`
+	Password        string             `bson:"password"`
 	ProfileImageURL string             `bson:"image_url"`
 	JoinedOn        primitive.DateTime `bson:"joined_on"`
 }
@@ -26,7 +26,7 @@ type Farmer struct {
 	Username        string             `bson:"username"`
 	FirstName       string             `bson:"first_name"`
 	LastName        string             `bson:"last_name"`
-	Password        string             `bson:"-"`
+	Password        string             `bson:"password"`
 	Age             int                `bson:"age"`
 	About           string             `bson:"about"`
 	Farms           []Farm             `bson:"farms"`
@@ -49,7 +49,7 @@ type User struct {
 	Username        string             `bson:"username"`
 	FirstName       string             `bson:"first_name"`
 	LastName        string             `bson:"last_name"`
-	Password        string             `bson:"-"`
+	Password        string             `bson:"password"`
 	Age             int                `bson:"age"`
 	JoinedOn        primitive.DateTime `bson:"joined_on"`
 	ProfileImageURL string             `bson:"image_url"`

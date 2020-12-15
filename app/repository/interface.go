@@ -14,6 +14,7 @@ type RepositoryInterface interface {
 	CreateAdmin(ctx context.Context, admin models.Admin) error
 
 	// // Admin start
+	LoginAdmin(ctx context.Context, username, password string) error
 	GetAdmin(ctx context.Context, AdminUsername string) (models.Admin, error)
 	ApproveFarmer(ctx context.Context, farmerID primitive.ObjectID) error
 	SuspendFarmer(ctx context.Context, farmerID primitive.ObjectID) error

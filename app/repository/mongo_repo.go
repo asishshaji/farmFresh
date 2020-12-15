@@ -73,6 +73,18 @@ func (repo mongoRepo) CreateAdmin(ctx context.Context, admin models.Admin) error
 }
 
 // Admin methods start
+func (repo mongoRepo) LoginAdmin(ctx context.Context, username, password string) error {
+	admin := models.Admin{}
+	filter := bson.M{"username": username, "password": password}
+	result := repo.adminCollection.FindOne(ctx, filter)
+	err := result.Decode(&admin)
+
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (repo mongoRepo) GetAdmin(ctx context.Context, AdminUsername string) (models.Admin, error) {
 	admin := models.Admin{}
 

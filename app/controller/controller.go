@@ -3,10 +3,12 @@ package controller
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"cloud.google.com/go/storage"
 	"github.com/asishshaji/freshFarm/app/usecase"
 	"github.com/asishshaji/freshFarm/app/utils"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
 )
 
@@ -33,7 +35,6 @@ func (ec EchoController) CreateAdmin(c echo.Context) error {
 		return c.JSON(http.StatusUnauthorized, map[string]string{"message": "Unauthorized"})
 	}
 
-	// TODO Upload image to server
 	username := c.FormValue("username")
 	password := c.FormValue("password")
 
@@ -53,4 +54,34 @@ func (ec EchoController) CreateAdmin(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 	}
 	return c.JSON(http.StatusOK, map[string]string{"message": "Success"})
+}
+
+// Admin
+func (ec EchoController) LoginAdmin(c echo.Context) error {
+	username := c.FormValue("username")
+	password := c.FormValue("password")
+	err := ec.usecase.LoginAdmin(c.Request().Context(), username, password)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": "Check username and password",
+		})
+	}
+
+	token := jwt.New(jwt.SigningMethodHS256)
+
+	claims := token.Claims.(jwt.MapClaims)
+	claims["name"] = "Jon Snow"
+	claims["admin"] = true
+	claims["exp"] = time.Now().Add(time.Hour * 72).Unix()
+
+	t, err := token.SignedString([]byte("secret"))
+	if err != nil {
+		return err
+	}
+
+	return c.JSON(http.StatusOK, map[string]string{
+		"token": t,
+	})
+
 }

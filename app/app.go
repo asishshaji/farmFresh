@@ -31,8 +31,8 @@ func NewApp(port string, controller controller.ControllerInterface) *App {
 	sp.POST("/create", controller.CreateAdmin)
 
 	// Admin group
-	// ad := e.Group("/admin")
-	// ad.GET("/",)
+	ad := e.Group("/admin")
+	ad.POST("/login", controller.LoginAdmin)
 
 	// Farmer group
 	fm := e.Group("/farmer")

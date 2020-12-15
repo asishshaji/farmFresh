@@ -8,6 +8,7 @@ type UsecaseInterface interface {
 	// For superAdmin
 	CreateAdmin(ctx context.Context, username, password, imageURL string) error
 	CheckIfSuperUser(ctx context.Context, superAdminPassword string) error
+	LoginAdmin(ctx context.Context, username, password string) error
 
 	// // For Admin
 	// LoginAdmin(ctx context.Context, username, password string)

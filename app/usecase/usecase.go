@@ -43,3 +43,11 @@ func (usecase Usecase) CreateAdmin(ctx context.Context, username, password, imag
 	}
 	return nil
 }
+
+func (usecase Usecase) LoginAdmin(ctx context.Context, username, password string) error {
+	err := usecase.repo.LoginAdmin(ctx, username, password)
+	if err != nil {
+		return err
+	}
+	return nil
+}

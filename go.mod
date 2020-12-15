@@ -6,6 +6,7 @@ require (
 	cloud.google.com/go/firestore v1.4.0 // indirect
 	cloud.google.com/go/storage v1.12.0
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/google/uuid v1.1.2
 	github.com/joho/godotenv v1.3.0
 	github.com/labstack/echo v3.3.10+incompatible
