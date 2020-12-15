@@ -29,14 +29,18 @@ func NewApp(port string, controller controller.ControllerInterface) *App {
 	// Superadmin group
 	sp := e.Group("/super")
 	sp.POST("/create", controller.CreateAdmin)
+	sp.GET("/admins", controller.GetAdmins)
 
 	// Admin group
 	ad := e.Group("/admin")
 	ad.POST("/login", controller.LoginAdmin)
+	ad.Use(middleware.JWT([]byte("adminSecret")))
+	ad.POST("/farmer/approve", controller.ApproveFarmer)
 
 	// Farmer group
 	fm := e.Group("/farmer")
-	fm.Use(middleware.JWT([]byte("secret")))
+	fm.Use(middleware.JWT([]byte("farmerSecret")))
+	fm.POST("/signup", controller.SignupFarmer)
 
 	return &App{
 		e:    e,

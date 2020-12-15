@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/asishshaji/freshFarm/app/models"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 type RepositoryInterface interface {
@@ -16,9 +15,9 @@ type RepositoryInterface interface {
 	// // Admin start
 	LoginAdmin(ctx context.Context, username, password string) error
 	GetAdmin(ctx context.Context, AdminUsername string) (models.Admin, error)
-	ApproveFarmer(ctx context.Context, farmerID primitive.ObjectID) error
-	SuspendFarmer(ctx context.Context, farmerID primitive.ObjectID) error
-	DeleteFarmer(ctx context.Context, farmerID primitive.ObjectID) error
+	GetAdmins(ctx context.Context) ([]models.Admin, error)
+
+	ChangeFarmerState(ctx context.Context, farmerID, state string) error
 	// // GetOrders(ctx context.Context) error
 	// SearchFarmer(ctx context.Context, farmerUsername string) (models.Farmer, error)
 	// SearchFarm(ctx context.Context, farmUsername string) (models.Farm, error)
@@ -34,6 +33,8 @@ type RepositoryInterface interface {
 
 	// Farmer start
 	CreateFarmer(ctx context.Context, farmer models.Farmer) error
+	GetFarmerWithUsername(ctx context.Context, username string) (models.Farmer, error)
+
 	// Farmer end
 
 	// User start

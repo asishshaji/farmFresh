@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"mime/multipart"
+	"strconv"
 	"time"
 
 	firebase "firebase.google.com/go"
@@ -16,6 +17,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/api/option"
 )
+
+func MakeTimestamp() string {
+	return strconv.FormatInt(time.Now().UnixNano()/(int64(time.Millisecond)/int64(time.Nanosecond)), 10)
+}
 
 // InitDB creates a connection to MongoDB instance
 func InitDB(mongodbURL, dbName string) *mongo.Database {

@@ -3,10 +3,10 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type Admin struct {
-	Username        string             `bson:"username"`
-	Password        string             `bson:"password"`
-	ProfileImageURL string             `bson:"image_url"`
-	JoinedOn        primitive.DateTime `bson:"joined_on"`
+	Username        string             `json:"username" bson:"username"`
+	Password        string             `json:"-" bson:"password"`
+	ProfileImageURL string             `json:"image_url" bson:"image_url"`
+	JoinedOn        primitive.DateTime `json:"joined_on" bson:"joined_on"`
 }
 
 type Farm struct {
@@ -22,7 +22,6 @@ type Farm struct {
 }
 
 type Farmer struct {
-	ID              primitive.ObjectID `bson:"_id"`
 	Username        string             `bson:"username"`
 	FirstName       string             `bson:"first_name"`
 	LastName        string             `bson:"last_name"`

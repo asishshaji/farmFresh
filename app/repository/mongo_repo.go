@@ -72,6 +72,20 @@ func (repo mongoRepo) CreateAdmin(ctx context.Context, admin models.Admin) error
 	return nil
 }
 
+func (repo mongoRepo) GetAdmins(ctx context.Context) ([]models.Admin, error) {
+	admins := []models.Admin{}
+	cursor, err := repo.adminCollection.Find(ctx, bson.M{})
+
+	if err != nil {
+		return nil, err
+	}
+	if err = cursor.All(ctx, &admins); err != nil {
+		return nil, err
+	}
+
+	return admins, nil
+}
+
 // Admin methods start
 func (repo mongoRepo) LoginAdmin(ctx context.Context, username, password string) error {
 	admin := models.Admin{}
@@ -96,12 +110,12 @@ func (repo mongoRepo) GetAdmin(ctx context.Context, AdminUsername string) (model
 	}
 	return admin, nil
 }
-func (repo mongoRepo) ApproveFarmer(ctx context.Context, farmerID primitive.ObjectID) error {
+func (repo mongoRepo) ChangeFarmerState(ctx context.Context, farmerID, state string) error {
 
 	farmer := models.Farmer{}
 
 	filter := bson.M{"_id": farmerID}
-	updation := bson.M{"$set": bson.M{"state": "approved"}}
+	updation := bson.M{"$set": bson.M{"state": state}}
 
 	result := repo.farmerCollection.FindOneAndUpdate(ctx, filter, updation)
 	err := result.Decode(&farmer)
@@ -147,4 +161,16 @@ func (repo mongoRepo) CreateFarmer(ctx context.Context, farmer models.Farmer) er
 	log.Println("New farmer created :", result)
 
 	return nil
+}
+
+func (repo mongoRepo) GetFarmerWithUsername(ctx context.Context, username string) (models.Farmer, error) {
+	farmer := models.Farmer{}
+	filter := bson.M{"username": username}
+	result := repo.farmerCollection.FindOne(ctx, filter)
+	err := result.Decode(&farmer)
+
+	if err != nil {
+		return models.Farmer{}, err
+	}
+	return farmer, nil
 }
