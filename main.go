@@ -26,13 +26,16 @@ func main() {
 
 	dbName := os.Getenv("DB")
 	mongodbURL := os.Getenv("MONGODB_URL")
+	storageBucket := os.Getenv("STORAGE_BUCKET")
+	credentialFilePath := os.Getenv("CRED_FILE")
 
 	// Initialising database and cloud storage
 	db := utils.InitDB(mongodbURL, dbName)
+	bucket := utils.InitStorage(storageBucket, credentialFilePath)
 
 	repo := repository.NewMongoRepository(db)
 	usecase := usecase.NewUsecase(repo)
-	controller := controller.NewEchoController(usecase)
+	controller := controller.NewEchoController(usecase, bucket)
 
 	app := app.NewApp(port, controller)
 
