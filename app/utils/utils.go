@@ -113,7 +113,7 @@ func InitStorage(storageBucket, credentialFilePath string) *storage.BucketHandle
 	if err != nil {
 		log.Fatalln(err)
 	}
-
+	log.Println("Google Cloud storage established")
 	return bucket
 
 }

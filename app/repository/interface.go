@@ -18,6 +18,7 @@ type RepositoryInterface interface {
 	GetAdmins(ctx context.Context) ([]models.Admin, error)
 
 	ChangeFarmerState(ctx context.Context, farmerID, state string) error
+	CreateProduct(ctx context.Context, product models.Product) error
 	// // GetOrders(ctx context.Context) error
 	// SearchFarmer(ctx context.Context, farmerUsername string) (models.Farmer, error)
 	// SearchFarm(ctx context.Context, farmUsername string) (models.Farm, error)
@@ -38,6 +39,9 @@ type RepositoryInterface interface {
 	// Farmer end
 
 	// User start
+	CreateUser(ctx context.Context, user models.User) error
+	GetUserWithUsername(ctx context.Context, username string) (models.User, error)
+	GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error)
 	// end
 
 }

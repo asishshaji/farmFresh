@@ -7,10 +7,13 @@ type ControllerInterface interface {
 	GetAdmins(c echo.Context) error
 
 	LoginAdmin(c echo.Context) error
+	AddProduct(c echo.Context) error
+	ChangeStateFarmer(c echo.Context) error
 
 	SignupFarmer(c echo.Context) error
 	LoginFarmer(c echo.Context) error
 
-	ApproveFarmer(c echo.Context) error
-	SuspendFarmer(c echo.Context) error
+	LoginUser(c echo.Context) error
+	SignupUser(c echo.Context) error
+	GetProductsByCategory(c echo.Context) error
 }

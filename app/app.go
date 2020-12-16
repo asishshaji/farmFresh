@@ -35,12 +35,25 @@ func NewApp(port string, controller controller.ControllerInterface) *App {
 	ad := e.Group("/admin")
 	ad.POST("/login", controller.LoginAdmin)
 	ad.Use(middleware.JWT([]byte("adminSecret")))
-	ad.POST("/farmer/approve", controller.ApproveFarmer)
+	ad.POST("/farmer/state", controller.ChangeStateFarmer)
+	ad.POST("/product/", controller.AddProduct)
 
 	// Farmer group
 	fm := e.Group("/farmer")
-	fm.Use(middleware.JWT([]byte("farmerSecret")))
 	fm.POST("/signup", controller.SignupFarmer)
+	fm.POST("/login", controller.LoginFarmer)
+	fm.Use(middleware.JWT([]byte("farmerSecret")))
+
+	// User group
+	u := e.Group("/user")
+	u.POST("/signup", controller.SignupUser)
+	u.POST("/login", controller.LoginUser)
+	u.Use(middleware.JWT([]byte("userSecret")))
+	u.GET("/products/:category", controller.GetProductsByCategory)
+
+	// get products by category, add pagination
+	//cart
+	// searcj product
 
 	return &App{
 		e:    e,

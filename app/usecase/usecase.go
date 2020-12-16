@@ -63,6 +63,14 @@ func (usecase Usecase) ChangeFarmerState(ctx context.Context, farmerID, state st
 	return nil
 }
 
+func (usecase Usecase) AddProduct(ctx context.Context, product models.Product) error {
+	err := usecase.repo.CreateProduct(ctx, product)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (usecase Usecase) GetAdmins(ctx context.Context) ([]models.Admin, error) {
 	admins, err := usecase.repo.GetAdmins(ctx)
 	if err != nil {
@@ -94,6 +102,7 @@ func (usecase Usecase) SignupFarmer(ctx context.Context, password, firstname, la
 		Score:           0.0,
 		State:           "review",
 		Reviews:         []models.Review{},
+		Profit:          0.0,
 	}
 
 	err = usecase.repo.CreateFarmer(ctx, farmer)
@@ -117,4 +126,55 @@ func (usecase Usecase) LoginFarmer(ctx context.Context, username, password strin
 	}
 
 	return nil
+}
+
+func (usecase Usecase) SignupUser(ctx context.Context, firstname, lastname, link, password string) error {
+	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+
+	username := utils.MakeTimestamp()
+
+	user := models.User{
+		Username:        username,
+		FirstName:       firstname,
+		LastName:        lastname,
+		Password:        string(hashedPassword),
+		JoinedOn:        primitive.NewDateTimeFromTime(time.Now()),
+		ProfileImageURL: link,
+		State:           "active",
+		FavoriteFarmers: []models.Farmer{},
+		FavoriteFarms:   []models.Farm{},
+	}
+
+	err = usecase.repo.CreateUser(ctx, user)
+	if err != nil {
+		return err
+	}
+	return nil
+
+}
+
+func (usecase Usecase) LoginUser(ctx context.Context, username, password string) error {
+	user, err := usecase.repo.GetUserWithUsername(ctx, username)
+	if err != nil {
+		return errors.New("No such user exists")
+	}
+
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password))
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (usecase Usecase) GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error) {
+	products, err := usecase.repo.GetProductsByCategory(ctx, category)
+	if err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }

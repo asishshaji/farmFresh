@@ -99,6 +99,15 @@ func (repo mongoRepo) LoginAdmin(ctx context.Context, username, password string)
 	return nil
 }
 
+func (repo mongoRepo) CreateProduct(ctx context.Context, product models.Product) error {
+	res, err := repo.productCollection.InsertOne(ctx, product)
+	if err != nil {
+		return err
+	}
+	log.Println("Inserted new product with ID : ", res.InsertedID)
+	return nil
+}
+
 func (repo mongoRepo) GetAdmin(ctx context.Context, AdminUsername string) (models.Admin, error) {
 	admin := models.Admin{}
 
@@ -173,4 +182,46 @@ func (repo mongoRepo) GetFarmerWithUsername(ctx context.Context, username string
 		return models.Farmer{}, err
 	}
 	return farmer, nil
+}
+
+// user methods
+func (repo mongoRepo) CreateUser(ctx context.Context, user models.User) error {
+	result, err := repo.userCollection.InsertOne(ctx, user)
+	if err != nil {
+		return err
+	}
+
+	log.Println("New user created :", result)
+
+	return nil
+}
+func (repo mongoRepo) GetUserWithUsername(ctx context.Context, username string) (models.User, error) {
+
+	user := models.User{}
+	filter := bson.M{"username": username}
+
+	result := repo.farmerCollection.FindOne(ctx, filter)
+	err := result.Decode(&user)
+
+	if err != nil {
+		return models.User{}, err
+	}
+	return user, nil
+}
+func (repo mongoRepo) GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error) {
+	products := []models.Product{}
+	options := options.Find()
+
+	options.SetLimit(10)
+
+	cursor, err := repo.productCollection.Find(ctx, bson.M{}, options)
+
+	if err != nil {
+		return nil, err
+	}
+	if err = cursor.All(ctx, &products); err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
