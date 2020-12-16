@@ -22,8 +22,8 @@ func NewApp(port string, controller controller.ControllerInterface) *App {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(custommiddlewares.RateLimitWithConfig(custommiddlewares.RateLimitConfig{
-		Limit: 2,
-		Burst: 2,
+		Limit: 200,
+		Burst: 200,
 	}))
 
 	// Superadmin group
@@ -35,8 +35,8 @@ func NewApp(port string, controller controller.ControllerInterface) *App {
 	ad := e.Group("/admin")
 	ad.POST("/login", controller.LoginAdmin)
 	ad.Use(middleware.JWT([]byte("adminSecret")))
+	ad.POST("/product", controller.AddProduct)
 	ad.POST("/farmer/state", controller.ChangeStateFarmer)
-	ad.POST("/product/", controller.AddProduct)
 
 	// Farmer group
 	fm := e.Group("/farmer")

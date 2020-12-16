@@ -18,7 +18,7 @@ type UsecaseInterface interface {
 	AddProduct(ctx context.Context, product models.Product) error
 
 	// // For Farmer
-	SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) error
+	SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) (models.Farmer, error)
 	LoginFarmer(ctx context.Context, username, password string) error
 
 	// For user

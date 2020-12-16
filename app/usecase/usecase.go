@@ -79,11 +79,11 @@ func (usecase Usecase) GetAdmins(ctx context.Context) ([]models.Admin, error) {
 	return admins, nil
 }
 
-func (usecase Usecase) SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) error {
+func (usecase Usecase) SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) (models.Farmer, error) {
 	// hashPassword
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return models.Farmer{}, err
 	}
 
 	username := utils.MakeTimestamp()
@@ -108,9 +108,9 @@ func (usecase Usecase) SignupFarmer(ctx context.Context, password, firstname, la
 	err = usecase.repo.CreateFarmer(ctx, farmer)
 
 	if err != nil {
-		return err
+		return models.Farmer{}, err
 	}
-	return nil
+	return farmer, nil
 
 }
 

@@ -8,7 +8,6 @@ import (
 	"github.com/asishshaji/freshFarm/app/models"
 	"github.com/asishshaji/freshFarm/app/utils"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
@@ -123,7 +122,8 @@ func (repo mongoRepo) ChangeFarmerState(ctx context.Context, farmerID, state str
 
 	farmer := models.Farmer{}
 
-	filter := bson.M{"_id": farmerID}
+	filter := bson.M{"username": farmerID}
+	log.Println("JERER")
 	updation := bson.M{"$set": bson.M{"state": state}}
 
 	result := repo.farmerCollection.FindOneAndUpdate(ctx, filter, updation)
@@ -135,46 +135,35 @@ func (repo mongoRepo) ChangeFarmerState(ctx context.Context, farmerID, state str
 	return nil
 }
 
-func (repo mongoRepo) SuspendFarmer(ctx context.Context, farmerID primitive.ObjectID) error {
-	farmer := models.Farmer{}
-
-	filter := bson.M{"_id": farmerID}
-	updation := bson.M{"$set": bson.M{"state": "suspended"}}
-
-	result := repo.farmerCollection.FindOneAndUpdate(ctx, filter, updation)
-	err := result.Decode(&farmer)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-func (repo mongoRepo) DeleteFarmer(ctx context.Context, farmerID primitive.ObjectID) error {
-	filter := bson.M{"_id": farmerID}
-	result, err := repo.farmerCollection.DeleteOne(ctx, filter)
-	if err != nil {
-		return err
-	}
-	log.Println("Deleted a farmer : ", result)
-
-	return nil
-}
-
 // Farmer methods
 func (repo mongoRepo) CreateFarmer(ctx context.Context, farmer models.Farmer) error {
-	result, err := repo.farmCollection.InsertOne(ctx, farmer)
+	opts := options.Update().SetUpsert(true)
+
+	up, err := utils.ToDoc(farmer)
+	if err != nil {
+		return err
+	}
+	doc := bson.D{{"$set", up}}
+
+	result, err := repo.farmerCollection.UpdateOne(ctx, bson.M{"firstname": farmer.FirstName, "lastname": farmer.LastName}, doc, opts)
+
+	if result.MatchedCount != 0 {
+		return errors.New("Farmer already exists")
+	}
+
 	if err != nil {
 		return err
 	}
 
 	log.Println("New farmer created :", result)
-
 	return nil
+
 }
 
 func (repo mongoRepo) GetFarmerWithUsername(ctx context.Context, username string) (models.Farmer, error) {
 	farmer := models.Farmer{}
 	filter := bson.M{"username": username}
+	log.Println(username)
 	result := repo.farmerCollection.FindOne(ctx, filter)
 	err := result.Decode(&farmer)
 

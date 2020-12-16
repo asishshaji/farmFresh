@@ -150,7 +150,9 @@ func (ec EchoController) AddProduct(c echo.Context) error {
 			"message": err.Error(),
 		})
 	}
-	return nil
+	return c.JSON(http.StatusBadRequest, map[string]string{
+		"message": "Saved product successfully",
+	})
 }
 
 func (ec EchoController) ChangeStateFarmer(c echo.Context) error {
@@ -162,7 +164,9 @@ func (ec EchoController) ChangeStateFarmer(c echo.Context) error {
 			"message": err.Error(),
 		})
 	}
-	return nil
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Changed farmer state",
+	})
 }
 
 // Farmer
@@ -185,16 +189,17 @@ func (ec EchoController) SignupFarmer(c echo.Context) error {
 		log.Println(err)
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Error uploading image"})
 	}
-
-	err = ec.usecase.SignupFarmer(c.Request().Context(), password, firstname, lastname, link, ageInt)
+	farmer, err := ec.usecase.SignupFarmer(c.Request().Context(), password, firstname, lastname, link, ageInt)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "Error registering farmer",
+			"message":  err.Error(),
+			"username": "",
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]string{
-		"message": "Saved farmer",
+		"message":  "Saved farmer",
+		"username": farmer.Username,
 	})
 
 }
