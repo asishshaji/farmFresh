@@ -152,10 +152,10 @@ func (usecase Usecase) LoginFarmer(ctx context.Context, username, password strin
 	return nil
 }
 
-func (usecase Usecase) SignupUser(ctx context.Context, firstname, lastname, link, password string) error {
+func (usecase Usecase) SignupUser(ctx context.Context, firstname, lastname, link, password string) (models.User, error) {
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
-		return err
+		return models.User{}, err
 	}
 
 	username := utils.MakeTimestamp()
@@ -174,9 +174,10 @@ func (usecase Usecase) SignupUser(ctx context.Context, firstname, lastname, link
 
 	err = usecase.repo.CreateUser(ctx, user)
 	if err != nil {
-		return err
+		return models.User{}, err
+
 	}
-	return nil
+	return user, nil
 
 }
 

@@ -25,7 +25,7 @@ type UsecaseInterface interface {
 	LoginFarmer(ctx context.Context, username, password string) error
 
 	// For user
-	SignupUser(ctx context.Context, firstname, lastname, link, password string) error
+	SignupUser(ctx context.Context, firstname, lastname, link, password string) (models.User, error)
 	LoginUser(ctx context.Context, username, password string) error
 	GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error)
 	CreateOrder(ctx context.Context, order models.Order) (string, error)

@@ -276,14 +276,16 @@ func (ec EchoController) SignupUser(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, map[string]string{"message": "Error uploading image"})
 	}
 
-	err = ec.usecase.SignupUser(c.Request().Context(), firstname, lastname, link, password)
+	user, err := ec.usecase.SignupUser(c.Request().Context(), firstname, lastname, link, password)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]string{
-			"message": "Error registering farmer",
+			"message":  "Error registering farmer",
+			"username": "",
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]string{
-		"message": "Saved user",
+		"message":  "Saved user",
+		"username": user.Username,
 	})
 }
 
