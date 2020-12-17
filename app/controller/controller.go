@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"encoding/json"
 	"log"
 	"net/http"
 	"strconv"
@@ -140,7 +141,9 @@ func (ec EchoController) AddProduct(c echo.Context) error {
 		State:             "active",
 		TypeOfMeasurement: typeOfMeasurement,
 		ProductCount:      count,
-		Category:          category,
+		Category: models.Category{
+			CategoryName: category,
+		},
 	}
 
 	err := ec.usecase.AddProduct(c.Request().Context(), product)
@@ -150,8 +153,33 @@ func (ec EchoController) AddProduct(c echo.Context) error {
 			"message": err.Error(),
 		})
 	}
-	return c.JSON(http.StatusBadRequest, map[string]string{
+	return c.JSON(http.StatusOK, map[string]string{
 		"message": "Saved product successfully",
+	})
+}
+
+func (ec EchoController) GetAllCategories(c echo.Context) error {
+	categories, err := ec.usecase.GetAllCategories(c.Request().Context())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, categories)
+}
+
+func (ec EchoController) CreateCategory(c echo.Context) error {
+
+	category := c.FormValue("category")
+
+	err := ec.usecase.CreateCategory(c.Request().Context(), category)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": "Created category",
 	})
 }
 
@@ -303,4 +331,44 @@ func (ec EchoController) GetProductsByCategory(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, products)
+}
+
+func (ec EchoController) CreateOrder(c echo.Context) error {
+	orderString := c.FormValue("order")
+	order := models.Order{}
+	err := json.Unmarshal([]byte(orderString), order)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	orderID, err := ec.usecase.CreateOrder(c.Request().Context(), order)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]string{
+		"order_id": orderID,
+	})
+}
+
+func (ec EchoController) ChangeItemInCart(c echo.Context) error {
+	cartAction := c.FormValue("action")
+	productID := c.FormValue("product_id")
+
+	user := c.Get("user").(*jwt.Token)
+	claims := user.Claims.(jwt.MapClaims)
+	name := claims["name"].(string)
+
+	err := ec.usecase.ChangeItemInCart(c.Request().Context(), cartAction, productID, name)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{
+			"message": err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": cartAction,
+	})
 }

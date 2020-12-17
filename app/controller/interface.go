@@ -9,6 +9,7 @@ type ControllerInterface interface {
 	LoginAdmin(c echo.Context) error
 	AddProduct(c echo.Context) error
 	ChangeStateFarmer(c echo.Context) error
+	CreateCategory(c echo.Context) error
 
 	SignupFarmer(c echo.Context) error
 	LoginFarmer(c echo.Context) error
@@ -16,4 +17,7 @@ type ControllerInterface interface {
 	LoginUser(c echo.Context) error
 	SignupUser(c echo.Context) error
 	GetProductsByCategory(c echo.Context) error
+	GetAllCategories(c echo.Context) error
+	CreateOrder(c echo.Context) error
+	ChangeItemInCart(c echo.Context) error
 }

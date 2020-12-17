@@ -10,71 +10,84 @@ type Admin struct {
 }
 
 type Farm struct {
-	ID                  primitive.ObjectID `bson:"_id"`
-	OwnerID             primitive.ObjectID `bson:"owner_id"`
-	LocationCoordinates string             `bson:"coordinates"`
-	ImageUrls           []string           `bson:"image_urls"`
-	About               string             `bson:"farm_details"`
-	Rating              float32            `bson:"rating"`
-	Reviews             []Review           `bson:"reviews"`
-	State               string             `bson:"state"` // can be active or suspended
+	OwnerID             string   `json:"owner_id"`
+	LocationCoordinates string   `json:"coordinates"`
+	ImageUrls           []string `json:"image_urls"`
+	About               string   `json:"farm_details"`
+	Rating              float32  `json:"rating"`
+	Reviews             []Review `json:"reviews"`
+	State               string   `json:"state"` // can be active or suspended
 
 }
 
 type Farmer struct {
-	Username        string             `bson:"username"`
-	FirstName       string             `bson:"first_name"`
-	LastName        string             `bson:"last_name"`
-	Password        string             `bson:"password"`
-	Age             int                `bson:"age"`
-	About           string             `bson:"about"`
-	Farms           []Farm             `bson:"farms"`
-	JoinedOn        primitive.DateTime `bson:"joined_on"`
-	Rating          float32            `bson:"rating"`
-	Score           float32            `bson:"score"`
-	ProfileImageURL string             `bson:"image_url"`
-	State           string             `bson:"state"` // can be under review, active or suspended
-	Reviews         []Review           `bson:"reviews"`
+	Username        string             `json:"username"`
+	FirstName       string             `json:"first_name"`
+	LastName        string             `json:"last_name"`
+	Password        string             `json:"-"`
+	Age             int                `json:"age"`
+	About           string             `json:"about"`
+	Farms           []Farm             `json:"farms"`
+	JoinedOn        primitive.DateTime `json:"joined_on"`
+	Rating          float32            `json:"rating"`
+	Score           float32            `json:"score"`
+	ProfileImageURL string             `json:"image_url"`
+	State           string             `json:"state"` // can be under review, active or suspended
+	Reviews         []Review           `json:"reviews"`
 	Profit          float64            `json:"profit" bson:"profit"`
 }
 
 type Review struct {
-	ID           primitive.ObjectID `bson:"_id"`
-	PostedByName string             `bson:"posted_by"`
-	Content      string             `bson:"content"`
+	PostedByName string `json:"posted_by"`
+	Content      string `json:"content"`
 }
 
 type User struct {
-	Username        string             `bson:"username"`
-	FirstName       string             `bson:"first_name"`
-	LastName        string             `bson:"last_name"`
-	Password        string             `bson:"password"`
-	JoinedOn        primitive.DateTime `bson:"joined_on"`
-	ProfileImageURL string             `bson:"image_url"`
-	State           string             `bson:"state"` // can be active or suspended
-	FavoriteFarmers []Farmer           `bson:"fav_farmers"`
-	FavoriteFarms   []Farm             `bson:"fav_farms"`
+	Username        string             `json:"username"`
+	FirstName       string             `json:"first_name"`
+	LastName        string             `json:"last_name"`
+	Password        string             `json:"-"`
+	JoinedOn        primitive.DateTime `json:"joined_on"`
+	ProfileImageURL string             `json:"image_url"`
+	State           string             `json:"state"` // can be active or suspended
+	FavoriteFarmers []Farmer           `json:"fav_farmers"`
+	FavoriteFarms   []Farm             `json:"fav_farms"`
+	UserCart        []CartItem         `json:"cart" bson:"cart"`
+}
 
-	// Implement cart
+type CartItem struct {
+	ProductID string `json:"product_id"`
+	Count     int    `json:"count"`
+}
+
+type Order struct {
+	OrderedBy  string     `json:"ordered_by"`
+	TotalPrice float64    `json:"total_price"`
+	Products   []CartItem `json:"products"`
+	Status     string     `json:"status"`
 }
 
 type Nutrition struct {
-	Type  string  `bson:"type"`
-	Score float32 `bson:"score"`
+	Type  string  `json:"type"`
+	Score float32 `json:"score"`
 }
 
 type Product struct {
-	Name              string             `bson:"name"`
-	ImageURLS         []string           `bson:"image_urls"`
-	CreatedAt         primitive.DateTime `bson:"created_at"`
-	OwnerID           string             `bson:"owner_id"`
-	Price             float64            `bson:"vk_price"`
-	MarketPrice       float64            `bson:"mk_price"`
-	Reviews           []Review           `bson:"reviews"`
-	NutritionalValues []Nutrition        `bson:"nutrition_values"`
-	About             string             `bson:"about"`
-	State             string             `bson:"state"`
-	TypeOfMeasurement string             `bson:"measurement_type"`
-	ProductCount      int                `bson:"count"`
-	Category          string             `bson:"category"`
+	Name              string             `json:"name"`
+	ImageURLS         []string           `json:"image_urls"`
+	CreatedAt         primitive.DateTime `json:"created_at"`
+	OwnerID           string             `json:"owner_id"`
+	Price             float64            `json:"vk_price"`
+	MarketPrice       float64            `json:"mk_price"`
+	Reviews           []Review           `json:"reviews"`
+	NutritionalValues []Nutrition        `json:"nutrition_values"`
+	About             string             `json:"about"`
+	State             string             `json:"state"`
+	TypeOfMeasurement string             `json:"measurement_type"`
+	ProductCount      int                `json:"count"`
+	Category          Category           `json:"category"`
+}
+
+type Category struct {
+	CategoryName string `json:"category_name" bson:"category_name"`
 }

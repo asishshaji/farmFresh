@@ -79,6 +79,30 @@ func (usecase Usecase) GetAdmins(ctx context.Context) ([]models.Admin, error) {
 	return admins, nil
 }
 
+func (usecase Usecase) GetAllCategories(ctx context.Context) ([]models.Category, error) {
+	categories, err := usecase.repo.GetAllCategories(ctx)
+	if err != nil {
+		return nil, err
+	}
+	return categories, nil
+}
+
+func (usecase Usecase) CreateCategory(ctx context.Context, categoryName string) error {
+	err := usecase.repo.CreateCategory(ctx, categoryName)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (usecase Usecase) CreateOrder(ctx context.Context, order models.Order) (string, error) {
+	orderID, err := usecase.repo.CreateOrder(ctx, order)
+	if err != nil {
+		return "", err
+	}
+	return orderID, nil
+}
+
 func (usecase Usecase) SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) (models.Farmer, error) {
 	// hashPassword
 	hashedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
@@ -177,4 +201,15 @@ func (usecase Usecase) GetProductsByCategory(ctx context.Context, category strin
 	}
 
 	return products, nil
+}
+
+func (usecase Usecase) ChangeItemInCart(ctx context.Context, action, productID, username string) error {
+
+	err := usecase.repo.ChangeItemInCart(ctx, action, username, productID)
+	if err != nil {
+		return err
+	}
+
+	return nil
+
 }

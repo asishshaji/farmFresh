@@ -13,22 +13,26 @@ import (
 )
 
 type mongoRepo struct {
-	adminCollection   *mongo.Collection
-	farmerCollection  *mongo.Collection
-	farmCollection    *mongo.Collection
-	userCollection    *mongo.Collection
-	productCollection *mongo.Collection
-	superAdmin        *mongo.Collection
+	adminCollection      *mongo.Collection
+	farmerCollection     *mongo.Collection
+	farmCollection       *mongo.Collection
+	userCollection       *mongo.Collection
+	productCollection    *mongo.Collection
+	superAdmin           *mongo.Collection
+	categoriesCollection *mongo.Collection
+	orderCollection      *mongo.Collection
 }
 
 func NewMongoRepository(db *mongo.Database) RepositoryInterface {
 	return mongoRepo{
-		adminCollection:   db.Collection("admin"),
-		farmerCollection:  db.Collection("farmer"),
-		farmCollection:    db.Collection("farm"),
-		userCollection:    db.Collection("user"),
-		productCollection: db.Collection("product"),
-		superAdmin:        db.Collection("super_admin"),
+		adminCollection:      db.Collection("admin"),
+		farmerCollection:     db.Collection("farmer"),
+		farmCollection:       db.Collection("farm"),
+		userCollection:       db.Collection("user"),
+		productCollection:    db.Collection("product"),
+		superAdmin:           db.Collection("super_admin"),
+		categoriesCollection: db.Collection("categories"),
+		orderCollection:      db.Collection("order"),
 	}
 }
 
@@ -135,6 +139,46 @@ func (repo mongoRepo) ChangeFarmerState(ctx context.Context, farmerID, state str
 	return nil
 }
 
+func (repo mongoRepo) CreateCategory(ctx context.Context, categoryName string) error {
+	category := models.Category{
+		CategoryName: categoryName,
+	}
+
+	opts := options.Update().SetUpsert(true)
+
+	up, err := utils.ToDoc(category)
+	if err != nil {
+		return err
+	}
+	doc := bson.D{{"$set", up}}
+
+	result, err := repo.categoriesCollection.UpdateOne(ctx, bson.M{"category_name": categoryName}, doc, opts)
+
+	if result.MatchedCount != 0 {
+		return errors.New("Category exists")
+	}
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repo mongoRepo) GetAllCategories(ctx context.Context) ([]models.Category, error) {
+	categories := []models.Category{}
+	cursor, err := repo.categoriesCollection.Find(ctx, bson.M{})
+
+	if err != nil {
+		return nil, err
+	}
+	if err = cursor.All(ctx, &categories); err != nil {
+		return nil, err
+	}
+
+	return categories, nil
+}
+
 // Farmer methods
 func (repo mongoRepo) CreateFarmer(ctx context.Context, farmer models.Farmer) error {
 	opts := options.Update().SetUpsert(true)
@@ -184,12 +228,53 @@ func (repo mongoRepo) CreateUser(ctx context.Context, user models.User) error {
 
 	return nil
 }
+
+func (repo mongoRepo) CreateOrder(ctx context.Context, order models.Order) (string, error) {
+	result, err := repo.orderCollection.InsertOne(ctx, order)
+	if err != nil {
+		return "", err
+	}
+	return result.InsertedID.(string), nil
+}
+
+func (repo mongoRepo) ChangeItemInCart(ctx context.Context, action, username, productID string) error {
+
+	if action == "increment" {
+		res, err := repo.userCollection.UpdateOne(ctx, bson.M{"username": username, "cart.product_id": productID}, bson.M{
+			"$inc": bson.M{"cart.$.count": 1},
+		})
+
+		if res.MatchedCount == 0 {
+			repo.userCollection.UpdateOne(ctx, bson.M{"username": username}, bson.M{
+				"$push": bson.M{"cart": models.CartItem{
+					ProductID: productID,
+					Count:     1,
+				}},
+			})
+		}
+
+		if err != nil {
+			return err
+		}
+
+	} else {
+		_, err := repo.userCollection.UpdateOne(ctx, bson.M{"username": username, "cart.product_id": productID}, bson.M{
+			"$inc": bson.M{"cart.$.count": -1},
+		})
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+
+}
+
 func (repo mongoRepo) GetUserWithUsername(ctx context.Context, username string) (models.User, error) {
 
 	user := models.User{}
 	filter := bson.M{"username": username}
 
-	result := repo.farmerCollection.FindOne(ctx, filter)
+	result := repo.userCollection.FindOne(ctx, filter)
 	err := result.Decode(&user)
 
 	if err != nil {

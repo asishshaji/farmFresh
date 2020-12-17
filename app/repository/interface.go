@@ -32,9 +32,12 @@ type RepositoryInterface interface {
 	// DeleteFarm(ctx context.Context, farmID primitive.ObjectID) error
 	// Admin end
 
+	GetAllCategories(ctx context.Context) ([]models.Category, error)
+	CreateCategory(ctx context.Context, categoryName string) error
 	// Farmer start
 	CreateFarmer(ctx context.Context, farmer models.Farmer) error
 	GetFarmerWithUsername(ctx context.Context, username string) (models.Farmer, error)
+	ChangeItemInCart(ctx context.Context, action, username, productID string) error
 
 	// Farmer end
 
@@ -42,6 +45,8 @@ type RepositoryInterface interface {
 	CreateUser(ctx context.Context, user models.User) error
 	GetUserWithUsername(ctx context.Context, username string) (models.User, error)
 	GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error)
+	CreateOrder(ctx context.Context, order models.Order) (string, error)
+
 	// end
 
 }

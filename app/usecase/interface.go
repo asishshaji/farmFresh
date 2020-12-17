@@ -16,6 +16,9 @@ type UsecaseInterface interface {
 	LoginAdmin(ctx context.Context, username, password string) error
 	ChangeFarmerState(ctx context.Context, farmerID, state string) error
 	AddProduct(ctx context.Context, product models.Product) error
+	CreateCategory(ctx context.Context, categoryName string) error
+
+	GetAllCategories(ctx context.Context) ([]models.Category, error)
 
 	// // For Farmer
 	SignupFarmer(ctx context.Context, password, firstname, lastname, link string, age int) (models.Farmer, error)
@@ -25,4 +28,6 @@ type UsecaseInterface interface {
 	SignupUser(ctx context.Context, firstname, lastname, link, password string) error
 	LoginUser(ctx context.Context, username, password string) error
 	GetProductsByCategory(ctx context.Context, category string) ([]models.Product, error)
+	CreateOrder(ctx context.Context, order models.Order) (string, error)
+	ChangeItemInCart(ctx context.Context, action, productID, username string) error
 }
