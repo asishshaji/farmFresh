@@ -219,14 +219,28 @@ func (repo mongoRepo) GetFarmerWithUsername(ctx context.Context, username string
 
 // user methods
 func (repo mongoRepo) CreateUser(ctx context.Context, user models.User) error {
-	result, err := repo.userCollection.InsertOne(ctx, user)
+
+	opts := options.Update().SetUpsert(true)
+
+	up, err := utils.ToDoc(user)
+	if err != nil {
+		return err
+	}
+	doc := bson.D{{"$set", up}}
+
+	result, err := repo.userCollection.UpdateOne(ctx, bson.M{"firstname": user.FirstName, "lastname": user.LastName}, doc, opts)
+
+	if result.MatchedCount != 0 {
+		return errors.New("user already exists")
+	}
+
 	if err != nil {
 		return err
 	}
 
-	log.Println("New user created :", result)
-
+	log.Println("New farmer created :", result)
 	return nil
+
 }
 
 func (repo mongoRepo) CreateOrder(ctx context.Context, order models.Order) (string, error) {
